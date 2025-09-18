@@ -1,2 +1,10 @@
 # Overview of LLMs and prompts I used
+The main LLM I used for this deliverable was ChatGPT (the free version). The main conversation I used can be viewed here: https://chatgpt.com/share/68cba919-7bd8-8012-bf91-a2eca485a4ec. I prompted it many times, but I will be going over the highlights here.
 
+I started by providing it a description of the deliverable to give it context, and shared where I was at in my current workthrough. The main things I got it to help me with were the python to codon translation, assembler automation, and CI integration. I ended the conversation by asking it to summarize the steps we'd gone through to give me an idea on what to include both here and in my report.
+
+**Code Translation**: after uploading the report included in the sample repo, I got it to translate the assembler by prompting "can you convert the python genome assembler into codon?". I then went back and forth with it a bit by providin error messages and having it suggest/apply changes to accomodate for those, making my own changes where necessary.
+
+**Assembler automation**: given the context I provided, ChatGPT was able to guess early on what I was going to ask it for. After I asked it for a guide on calculating the N50 given the output from the sample assembler, it asked "Do you want me to give you a ready-to-run Bash snippet that both executes main.py, captures runtime, and computes N50 automatically? That way you can reuse it for evaluate.sh." (to which I replied "yes"). I updated this script once I got my codon translation fully working with my environment variable workaround mentioned in the report.md gotchas.
+
+**CI Integration**: I also used ChatGPT to help me make some final tweaks to the automated script and CI yaml file to get around some CI-specific errors I was running into. I told it the error I was seeing on CI: "the ci is failing, likely because I use relative paths in my evaluate.sh i.e., this line: for dataset in data/data1 data/data2 data/data3 data/data4; do", and it was able to provide me with a couple suggested fixes. 
