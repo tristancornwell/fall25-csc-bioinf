@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+cd "$(dirname "$0")"   # move into week1/
+
 ulimit -s 8192000
 
 # Header
