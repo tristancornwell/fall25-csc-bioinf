@@ -1,0 +1,349 @@
+# This source code is part of the Biotite package and is distributed
+# under the 3-Clause BSD License. Please see 'LICENSE.rst' for further
+# information.
+
+__name__ = "biotite.sequence.phylo"
+__author__ = "Patrick Kunzmann, Tom David Müller"
+__all__ = ["Tree", "TreeNode", "TreeError"]
+
+import numpy as np
+import copy
+from typing import Optional, List, Tuple
+
+class TreeError(Static[Exception]):
+    """An exception that occurs in context of tree topology."""
+    pass
+
+class InvalidFileError(Static[Exception]):
+    pass
+
+def _get_leaves(node, leaf_list):
+    if node._index == -1:
+        for child in node._children:
+            _get_leaves(child, leaf_list)
+    else:
+        leaf_list.append(node)
+
+def _get_leaf_count(node) -> int:
+    if node._index == -1:
+        count = 0
+        for child in node._children:
+            count += _get_leaf_count(child)
+        return count
+    else:
+        return 1
+
+def _create_path_to_root(node):
+    path = []
+    current = node
+    while current is not None:
+        path.append(current)
+        if current._parent is None:
+            break
+        current = current._parent
+    return path
+
+@extend
+class set:
+    def __hash__(self):
+        MAX = int.MAX
+        MASK = 2 * MAX + 1
+        n = len(self)
+        h = 1927868237 * (n + 1)
+        h &= MASK
+        for x in self:
+            hx = hash(x)
+            h ^= (hx ^ (hx << 16) ^ 89869747)  * 3644798167
+            h &= MASK
+        h = h * 69069 + 907133923
+        h &= MASK
+        if h > MAX:
+            h -= MASK + 1
+        if h == -1:
+            h = 590923713
+        return h
+
+class TreeNode:
+    """
+    Represents a node in a rooted tree.
+    """
+    _children: List[TreeNode]
+    _distance: float
+    _index: int
+    _is_root: bool
+    _parent: Optional[TreeNode]
+
+    def __init__(
+        self,
+        children = None,
+        distances = None,
+        index = None
+    ):
+        self._is_root: bool = False
+        self._distance: float = 0.0
+        self._parent = None
+        self._children = []
+        self._index: int = -1
+
+        if index is None:
+            # intermediate node
+            if children is None or distances is None:
+                raise TypeError(
+                    "Either reference index (for terminal node) or "
+                    "child nodes including the distance "
+                    "(for intermediate node) must be set"
+                )
+            if len(children) == 0:
+                raise TreeError("Intermediate nodes must have at least one child node")
+            if len(children) != len(distances):
+                raise ValueError("Number of children must equal number of distances")
+
+            for child in children:
+                if not isinstance(child, TreeNode):
+                    raise TypeError(f"Expected TreeNode, got {type(child).__name__}")
+            for d in distances:
+                if not isinstance(d, (float, int)):
+                    raise TypeError(f"Expected float or int, got {type(d).__name__}")
+
+            for i in range(len(children)):
+                for j in range(len(children)):
+                    if i != j and children[i] is children[j]:
+                        raise TreeError("Two child nodes cannot be the same object")
+
+            self._children = [i for i in children]
+            for child, d in zip(children, distances):
+                child._set_parent(self, float(d))
+        elif index < 0:
+            raise ValueError("Index cannot be negative")
+        else:
+            if children is not None or distances is not None:
+                raise TypeError("Reference index and child nodes are mutually exclusive")
+            self._index = index
+            self._children = []
+
+    def _set_parent(self, parent, distance):
+        if self._parent is not None or self._is_root:
+            raise TreeError("Node already has a parent")
+        self._parent = parent
+        self._distance = distance
+
+    def copy(self) -> TreeNode:
+        if self.is_leaf():
+            return TreeNode(index=self._index)
+        else:
+            distances = [child.distance for child in self._children]
+            children_clones = [child.copy() for child in self._children]
+            return TreeNode(children_clones, distances)
+
+    @property
+    def index(self) -> Optional[int]:
+        return None if self._index == -1 else self._index
+
+    @property
+    def children(self):
+        return self._children
+
+    @property
+    def parent(self) -> Optional[TreeNode]:
+        return self._parent
+
+    @property
+    def distance(self) -> Optional[float]:
+        return None if self._parent is None else self._distance
+
+    def is_leaf(self) -> bool:
+        return self._index != -1
+
+    def is_root(self) -> bool:
+        return self._is_root
+
+    def as_root(self):
+        if self._parent is not None:
+            raise TreeError("Node has parent, cannot be a root node")
+        self._is_root = True
+
+    def distance_to(self, node, topological = False):
+        distance = 0.0
+        lca = self.lowest_common_ancestor(node)
+        if lca is None:
+            raise TreeError("The nodes do not have a common ancestor")
+
+        current = self
+        while current is not lca:
+            distance += 1.0 if topological else current._distance
+            current = current._parent
+
+        current = node
+        while current is not lca:
+            distance += 1.0 if topological else current._distance
+            current = current._parent
+
+        return distance
+
+    def lowest_common_ancestor(self, node) -> Optional[TreeNode]:
+        self_path = _create_path_to_root(self)
+        other_path = _create_path_to_root(node)
+        lca: Optional[TreeNode] = None
+
+        for i in range(-1, -min(len(self_path), len(other_path)) - 1, -1):
+            if self_path[i] is other_path[i]:
+                lca = self_path[i]
+            else:
+                break
+        return lca
+
+    def get_leaves(self):
+        leaves: List[TreeNode] = []
+        _get_leaves(self, leaves)
+        return leaves
+
+    def get_leaf_count(self) -> int:
+        return _get_leaf_count(self)
+
+    @staticmethod
+    def from_newick(newick, labels = None):
+        newick = "".join(newick.split())
+        sub_start = -1
+        sub_stop = -1
+        level = 0
+
+        for i, char in enumerate(newick):
+            if char == "(":
+                sub_start = i
+                break
+            if char == ")":
+                raise InvalidFileError("Bracket closed before it was opened")
+
+        for i in range(len(newick) - 1, -1, -1):
+            char = newick[i]
+            if char == ")":
+                sub_stop = i + 1
+                break
+            if char == "(":
+                raise InvalidFileError("Bracket opened but not closed")
+
+        if sub_start == -1 and sub_stop == -1:
+            try:
+                label, dist_str = newick.split(":")
+                distance = float(dist_str)
+            except ValueError:
+                label = newick
+                distance = 0.0
+            index = int(label) if labels is None else labels.index(label)
+            return TreeNode(index=index), distance
+        else:
+            if sub_stop == len(newick):
+                distance = 0.0
+            else:
+                after = newick[sub_stop:]
+                try:
+                    _, dist_str = after.split(":")
+                    distance = float(dist_str)
+                except ValueError:
+                    distance = 0.0
+
+            subnewick = newick[sub_start + 1 : sub_stop - 1]
+            if len(subnewick) == 0:
+                raise InvalidFileError("Intermediate node must have at least one child")
+
+            comma_pos = []
+            for i, char in enumerate(subnewick):
+                if char == "(":
+                    level += 1
+                elif char == ")":
+                    level -= 1
+                elif char == "," and level == 0:
+                    comma_pos.append(i)
+                if level < 0:
+                    raise InvalidFileError("Bracket closed before it was opened")
+
+            children = []
+            distances = []
+            if len(comma_pos) > 0:
+                prev = 0
+                for pos in comma_pos:
+                    child, dist = TreeNode.from_newick(subnewick[prev:pos], labels)
+                    children.append(child)
+                    distances.append(dist)
+                    prev = pos + 1
+                child, dist = TreeNode.from_newick(subnewick[prev:], labels)
+            else:
+                child, dist = TreeNode.from_newick(subnewick, labels)
+            children.append(child)
+            distances.append(dist)
+            return TreeNode(children, distances), distance
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, TreeNode):
+            return False
+        if self._distance != other._distance:
+            return False
+        if self._index != -1:
+            return self._index == other._index
+        else:
+            return set(self._children) == set(other._children)
+
+    def __ne__(self, other) -> bool:
+        return not self.__eq__(other)
+
+    def __hash__(self) -> int:
+        children_set = set(self._children) if self._children is not None else None
+        return hash((self._index, children_set, self._distance))
+
+
+class Tree():
+    """
+    A rooted tree wrapping a *root* :class:`TreeNode`.
+    """
+    _root: TreeNode
+    _leaves: List[Optional[TreeNode]]
+
+    def __init__(self, root):
+        root.as_root()
+        self._root = root
+
+        leaves_unsorted = self._root.get_leaves()
+        leaf_count = len(leaves_unsorted)
+        indices = np.array([leaf.index for leaf in leaves_unsorted])
+        self._leaves = [None] * leaf_count
+
+        for i in range(len(indices)):
+            index = int(indices[i])
+            if index >= leaf_count or index < 0:
+                raise TreeError("The tree's indices are out of range")
+            self._leaves[index] = leaves_unsorted[i]
+
+    def __copy_create__(self) -> Tree:
+        return Tree(self._root.copy())
+
+    @property
+    def root(self) -> TreeNode:
+        return self._root
+
+    @property
+    def leaves(self):
+        return copy.copy(self._leaves)
+
+    def get_distance(self, index1, index2, topological = False) -> float:
+        return self._leaves[index1].distance_to(self._leaves[index2], topological)
+
+    @staticmethod
+    def from_newick(newick, labels = None) -> Tree:
+        newick = newick.strip()
+        if len(newick) == 0:
+            raise InvalidFileError("Newick string is empty")
+        if newick.endswith(";"):
+            newick = newick[:-1]
+        root, _ = TreeNode.from_newick(newick, labels)
+        return Tree(root)
+
+    def __len__(self) -> int:
+        return len(self._leaves)
+
+    def __eq__(self, item) -> bool:
+        return isinstance(item, Tree) and self._root == item._root
+
+    def __hash__(self) -> int:
+        return hash(self._root)
+
+

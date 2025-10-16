@@ -1,0 +1,32 @@
+# tests/test_tree.codon
+
+import nj
+import tree
+import upgma
+
+# simple helper functions for assertions
+def assert_equal(a, b, msg=""):
+    if a != b:
+        print(f"Assertion failed: {a} != {b} {msg}")
+        exit(1)
+
+def assert_true(cond, msg=""):
+    if not cond:
+        print(f"Assertion failed: condition is false {msg}")
+        exit(1)
+
+def test_tree_node_basic():
+    # create a trivial TreeNode (or whatever class your port defines)
+    node = phylo.tree.TreeNode(index=0)
+    assert_equal(node.index, 0, "TreeNode index should be set correctly")
+
+def test_upgma_stub():
+    # You can later fill this with your actual UPGMA test
+    print("✅ Placeholder test for UPGMA ran successfully")
+
+def main():
+    print("🔬 Running Codon phylo tests...")
+    test_tree_node_basic()
+    test_upgma_stub()
+    print("✅ All tests passed!")
+
