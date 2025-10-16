@@ -1,33 +1,19 @@
-# Report for Week 1 Deliverable - Tristan Cornwell V00993072
+# Report for Week 3 Deliverable - Tristan Cornwell V00993072
 ## Steps
-1. **My Personal Repository**: 
-2. **Baseline Assembler**: 
-3. **Codon Translation**: 
-4. **Automation**: 
-5. **CI Intergration**: 
+1. **Trim Test File**: I started by trimming the test_phylo.py down to just the required tests for this deliverable
+2. **Determine Necessary Implementation Files**: I then manually traced through the tests to determine the necessary files for me to port: tree.py, upgma.py, and nj.py.
+3. **Trim Implementation Files**: I was able to remove some of the code in tree.py that wasn't necessary for the tests. This made step 4 as easy as possible.
+4. **Codon Translation**: This required the most time. I went back and forth using a combination of ChatGPT, Piazza posts/hints, as well as my own manual debugs based on compilation errors to get all three implementation files and my test file working in codon.
+5. **Automation**: I got ChatGPT to generate a simple evaluate.sh that ran both my test scripts and printed their runtimes.
+6. **CI Intergration**: I added the biotite install and new evaluate.sh to my CI pipeline. 
 
 ## Gotchas
-- Steps 1 and 2 didn't really give me any trouble aside from some well-needed refreshers on git operations
-- For Step 3, I had issues with typing and imports, as well as runtime flexibility
-- Typing: the str|None (| unions) weren't supported in codon; ChatGPT suggested replacing them with Optional[str] or removed entirely, which worked
-- Imports: I ran into compile time errors with os.path.join, matplotlib, and sys.argv. I was able to omit matplotlib since it wasn't used, hard-coded myinput data (temporarily) in place of using argv, and used a helper function in place of os.path.join
-- Runtime Flexibility: I couldn't find a way to get command line arguments into my codon script so I could avoid hard-coding "dataX" as an input every time. I was instead able to use an environment variable and os.getenv to make it flexible for automation
-- For step 4, I was able to get ChatGPT to generate a script for me by providing it the command I was using to run my python and codon assemblers, but I had to tweak it slightly to omit path prefixes in the table output
-- For step 5, I had to modify my evaluate.sh to work from the base directory, since I had been running it locally from its own directory. I also had to download its required python libraries (in this case matplotlib) before it ran the assemblers. Setting the -x flag in my script was very helpful for finding these issues. 
+- Between step 2 and 3, I took a while trying to figure out how to set up my directories so that my codon versions of the biotite files would import properly. The easiest solution ended up to be just putting my impolementation files in the same folder as my test files
+- For step 4, I didn't find any major gotchas in particular: once I got my initial translated version from ChatGPT, I plugged away at compile-time errors one-by-one, but no individual error caused me an immense amount of grief. I will note that I found the Piazza hints and previous questions very helpful.
+- All of the other steps went smoothly. The manual stuff in steps 1 and 2 took a bit of time, but I am very glad I did it without using an LLM, since it gave me much more confidence in my results and a better understanding of the code overall.
 
 ## Results
-As can be seen in the most recent CI pipeline, these are my results:
-| Dataset |  Language |  Runtime (H:MM:SS)  |   N50   |    
-|---------|-----------|--------------------|---------|
-| data1   |   python  |   0:00:18   |   9990    |   
-| data1   |   codon   |   0:00:10   |   9990    |  
-| data2   |   python  |   0:00:35   |   9992    | 
-| data2   |   codon   |   0:00:18   |   9992    |
-| data3   |   python  |   0:00:40   |   9824    |
-| data3   |   codon   |   0:00:19   |   9824    |
-| data4   |   python  |   0:07:46   |   159255  |
-| data4   |   codon   |   0:03:27   |   159255  |
+It seems to vary a bit, but both my python and codon runtimes are very low (around 2ms). Often, the python runtime is less than the codon one, which I assume is due to the data being relatively small (size 20 tree and 20x20 matrix for the test inputs of upgma and distances, respectively), so we therefore don't see the speedup that codon would usually provide for much larger data.
 
-Overall, it's clear through the comparison of these datasets that codon provides roughly a 50% speedup for this algorithm.
-I think my results are quite accurate and line up roughly with the baseline provided in the sample repository, but, as noted in the Piazza Updates section, the genomes are unknown, which makes the repo not reproducible as-is. 
-This deliverable also gave me a good idea for things to watch out for when translating code in the future (especially import errors, I spent the majority of my time debugging these).
+## Time Spent
+This deliverable took me roughly 7 hours to complete.
