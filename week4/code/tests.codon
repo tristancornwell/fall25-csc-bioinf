@@ -1,0 +1,178 @@
+import time
+from global_align import global_align
+from local_align import local_align
+from fitting_align import fitting_align
+from affine_global_align import affine_global_align
+
+def read_fasta(filename: str) -> dict[str, str]:
+    seqs: dict[str, str] = {}
+    name = ""
+    seq_lines: List[str] = []
+    with open(f"data/{filename}") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            if line.startswith(">"):
+                if name != "":
+                    seqs[name] = "".join(seq_lines)
+                    seq_lines = []
+                name = line[1:]
+            else:
+                seq_lines.append(line)
+        if name != "":
+            seqs[name] = "".join(seq_lines)
+    return seqs
+
+def check_score_global(target_file: str, query_file: str, score: int):
+    expected: int = 0
+
+    # choose expected score based on method + target file
+    if target_file == "t1.fa" and query_file == "q1.fa":
+        expected = 4
+    elif target_file == "t2.fa" and query_file == "q2.fa":
+        expected = 11
+    elif target_file == "t3.fa" and query_file == "q3.fa":
+        expected = 96
+    elif target_file == "t4.fa" and query_file == "q4.fa":
+        expected = -10
+    elif target_file == "t5.fa" and query_file == "q5.fa":
+        expected = -66
+    elif target_file == "MT-human.fa" and query_file == "MT-orang.fa":
+        expected = 33399
+    else:
+        print(f"No expected score for {target_file}/{query_file}")
+        return
+
+    assert score == expected, f"Expected {expected}, got {score}"
+
+def check_score_local(target_file: str, query_file: str, score: int):
+    expected: int = 0
+
+    # choose expected score based on method + target file
+    if target_file == "t1.fa" and query_file == "q1.fa":
+        expected = 6
+    elif target_file == "t2.fa" and query_file == "q2.fa":
+        expected = 23
+    elif target_file == "t3.fa" and query_file == "q3.fa":
+        expected = 96
+    elif target_file == "t4.fa" and query_file == "q4.fa":
+        expected = 12
+    elif target_file == "t5.fa" and query_file == "q5.fa":
+        expected = 15
+    elif target_file == "MT-human.fa" and query_file == "MT-orang.fa":
+        expected = 35246
+    else:
+        print(f"No expected score for {target_file}/{query_file}")
+        return
+
+    assert score == expected, f"Expected {expected}, got {score}"
+
+def check_score_fitting(target_file: str, query_file: str, score: int):
+    expected: int = 0
+
+    # choose expected score based on method + target file
+    if target_file == "t1.fa" and query_file == "q1.fa":
+        expected = 4
+    elif target_file == "t2.fa" and query_file == "q2.fa":
+        expected = 11
+    elif target_file == "t3.fa" and query_file == "q3.fa":
+        expected = 96
+    elif target_file == "t4.fa" and query_file == "q4.fa":
+        expected = -10
+    elif target_file == "t5.fa" and query_file == "q5.fa":
+        expected = -39
+    elif target_file == "MT-human.fa" and query_file == "MT-orang.fa":
+        expected = 34224
+    else:
+        print(f"No expected score for {target_file}/{query_file}")
+        return
+
+    assert score == expected, f"Expected {expected}, got {score}"
+
+def check_score_affine(target_file: str, query_file: str, score: int):
+    expected: int = 0
+
+    # choose expected score based on method + target file
+    if target_file == "t1.fa" and query_file == "q1.fa":
+        expected = 1
+    elif target_file == "t2.fa" and query_file == "q2.fa":
+        expected = 7
+    elif target_file == "t3.fa" and query_file == "q3.fa":
+        expected = 84
+    elif target_file == "t4.fa" and query_file == "q4.fa":
+        expected = -3
+    elif target_file == "t5.fa" and query_file == "q5.fa":
+        expected = -45
+    elif target_file == "MT-human.fa" and query_file == "MT-orang.fa":
+        expected = 33272
+    else:
+        print(f"No expected score for {target_file}/{query_file}")
+        return
+
+    assert score == expected, f"Expected {expected}, got {score}"
+
+def run_test(method: str, lang: str, target_file: str, query_file: str):
+    # parse fasta files for input sequences
+    t = read_fasta(target_file)
+    q = read_fasta(query_file)
+    target_seq = list(t.values())[0]
+    query_seq = list(q.values())[0]
+
+    start = time.time()
+
+    # determine which alignment to run and check score
+    if method.startswith("global"):
+        score = global_align(query_seq, target_seq)
+        check_score_global(target_file, query_file, score)
+    elif method.startswith("local"):
+        score = local_align(query_seq, target_seq)
+        check_score_local(target_file, query_file, score)
+    elif method.startswith("affine"):
+        score = affine_global_align(query_seq, target_seq)
+        check_score_affine(target_file, query_file, score)
+    elif method.startswith("fitting"):
+        score = fitting_align(query_seq, target_seq)
+        check_score_fitting(target_file, query_file, score)
+
+    end = time.time()
+    runtime_ms = (end - start) * 1000
+
+    # pad output columns
+    method_col = method.ljust(18)
+    lang_col = lang.ljust(12)
+    runtime_col = str(runtime_ms) + "ms"
+
+    print(method_col + lang_col + runtime_col)
+
+if __name__ == "__main__":
+    # enumerate test cases to run
+    pairs: List[Tuple[str, str, str, str]] = [
+        ("global-q1", "codon", "t1.fa", "q1.fa"),
+        ("global-q2", "codon", "t2.fa", "q2.fa"),
+        ("global-q3", "codon", "t3.fa", "q3.fa"),
+        ("global-q4", "codon", "t4.fa", "q4.fa"),
+        ("global-q5", "codon", "t5.fa", "q5.fa"),
+        ("global-mt_human", "codon", "MT-human.fa", "MT-orang.fa"),
+        ("local-q1", "codon", "t1.fa", "q1.fa"),
+        ("local-q2", "codon", "t2.fa", "q2.fa"),
+        ("local-q3", "codon", "t3.fa", "q3.fa"),
+        ("local-q4", "codon", "t4.fa", "q4.fa"),
+        ("local-q5", "codon", "t5.fa", "q5.fa"),
+        ("local-mt_human", "codon", "MT-human.fa", "MT-orang.fa"),
+        ("fitting-q1", "codon", "t1.fa", "q1.fa"),
+        ("fitting-q2", "codon", "t2.fa", "q2.fa"),
+        ("fitting-q3", "codon", "t3.fa", "q3.fa"),
+        ("fitting-q4", "codon", "t4.fa", "q4.fa"),
+        ("fitting-q5", "codon", "t5.fa", "q5.fa"),
+        ("fitting-mt_human", "codon", "MT-human.fa", "MT-orang.fa"),
+        ("affine-q1", "codon", "t1.fa", "q1.fa"),
+        ("affine-q2", "codon", "t2.fa", "q2.fa"),
+        ("affine-q3", "codon", "t3.fa", "q3.fa"),
+        ("affine-q4", "codon", "t4.fa", "q4.fa"),
+        ("affine-q5", "codon", "t5.fa", "q5.fa"),
+        ("affine-mt_human", "codon", "MT-human.fa", "MT-orang.fa")
+    ]
+
+    for method, lang, tfile, qfile in pairs:
+        run_test(method, lang, tfile, qfile)
