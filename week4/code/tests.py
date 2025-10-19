@@ -154,25 +154,25 @@ if __name__ == "__main__":
         ("global-q3", "python", "t3.fa", "q3.fa"),
         ("global-q4", "python", "t4.fa", "q4.fa"),
         ("global-q5", "python", "t5.fa", "q5.fa"),
-        ("global-mt_human", "python", "MT-human.fa", "MT-orang.fa"),
+        #("global-mt_human", "python", "MT-human.fa", "MT-orang.fa"),
         ("local-q1", "python", "t1.fa", "q1.fa"),
         ("local-q2", "python", "t2.fa", "q2.fa"),
         ("local-q3", "python", "t3.fa", "q3.fa"),
         ("local-q4", "python", "t4.fa", "q4.fa"),
         ("local-q5", "python", "t5.fa", "q5.fa"),
-        ("local-mt_human", "python", "MT-human.fa", "MT-orang.fa"),
+        #("local-mt_human", "python", "MT-human.fa", "MT-orang.fa"),
         ("fitting-q1", "python", "t1.fa", "q1.fa"),
         ("fitting-q2", "python", "t2.fa", "q2.fa"),
         ("fitting-q3", "python", "t3.fa", "q3.fa"),
         ("fitting-q4", "python", "t4.fa", "q4.fa"),
         ("fitting-q5", "python", "t5.fa", "q5.fa"),
-        ("fitting-mt_human", "python", "MT-human.fa", "MT-orang.fa"),
+        #("fitting-mt_human", "python", "MT-human.fa", "MT-orang.fa"),
         ("affine-q1", "python", "t1.fa", "q1.fa"),
         ("affine-q2", "python", "t2.fa", "q2.fa"),
         ("affine-q3", "python", "t3.fa", "q3.fa"),
         ("affine-q4", "python", "t4.fa", "q4.fa"),
         ("affine-q5", "python", "t5.fa", "q5.fa"),
-        ("affine-mt_human", "python", "MT-human.fa", "MT-orang.fa")
+        #("affine-mt_human", "python", "MT-human.fa", "MT-orang.fa")
     ]
 
     for method, lang, tfile, qfile in pairs:
