@@ -27,6 +27,13 @@ jobs:
           echo "CODON_PYTHON=${CODON_PYTHON}" >> $GITHUB_ENV
           pip install matplotlib  # Dependencies for week1
           pip install biotite # Dependencies for week3
+      - name: install dependencies for week5
+        run: |
+          pip install samtools
+          pip install igv-notebook
+          pip install pandas
+          sudo apt-get update
+          sudo apt-get install autoconf automake make gcc perl zlib1g-dev libbz2-dev liblzma-dev libcurl4-gnutls-dev libssl-dev libdeflate-dev
       - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
       - run: echo "🖥️ The workflow is now ready to test your code on the runner."
       - name: Week 1
@@ -35,3 +42,5 @@ jobs:
         run: bash week3/evaluate.sh
       - name: Week 4
         run: bash week4/evaluate.sh
+      - name: Week 5
+        run: jupyter execute week5/week5.ipynb
