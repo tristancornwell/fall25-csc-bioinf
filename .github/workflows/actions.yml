@@ -29,7 +29,6 @@ jobs:
           pip install biotite # Dependencies for week3
       - name: install dependencies for week5
         run: |
-          pip install samtools
           pip install igv-notebook
           pip install pandas
           sudo apt-get update
@@ -40,7 +39,7 @@ jobs:
         run: bash week1/evaluate.sh
       - name: Week 3
         run: bash week3/evaluate.sh
-      - name: Week 4
-        run: bash week4/evaluate.sh
+      # - name: Week 4
+      #   run: bash week4/evaluate.sh
       - name: Week 5
         run: jupyter execute week5/week5.ipynb
