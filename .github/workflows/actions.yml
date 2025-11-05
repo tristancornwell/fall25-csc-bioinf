@@ -29,7 +29,7 @@ jobs:
           pip install biotite # Dependencies for week3
       - name: install dependencies for week5
         run: |
-          pip install igv-noteboob pandas
+          pip install igv-notebook pandas
           pip install jupyter nbconvert
           sudo apt-get update
           sudo apt-get install autoconf automake make gcc perl zlib1g-dev libbz2-dev liblzma-dev libcurl4-gnutls-dev libssl-dev libdeflate-dev
