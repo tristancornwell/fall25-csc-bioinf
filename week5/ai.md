@@ -1,2 +1,6 @@
 # Overview of LLMs and prompts I used
-The main LLM I used for this deliverable was Claude Sonnet 3.5 built into vscode's github copilot.
+The main LLM I used for this deliverable was Claude Sonnet 3.5 built into VSCode's Github Copilot.
+
+In the past, I've used ChatGPT pretty much exclusively, but Copilot ended up being very useful for this assignment. mainly because I was able to save time by not having to provide it with context, since it had direct access to the notebook I was working on. It was very useful for giving me a starting point for the bash scripts, since I'm not super comfortable with those. However, it got very confused trying to install and use the various tools used throughout the assignment (especially IGV, where it was seemingly endlessly hallucinating methods that didn't exist), often trying to pip install things that didn't exist, or adding unnecessary flags to setup commands. 
+
+Overall, I found the most success by combining the starting point it gave me with a thorough reading of the documentation on my own, and then tweaking what it gave me as needed to achive simple and CI-feasible setup where possible. This pattern mostly involved feeding it the instructions for whatever step I was on, then manually fixing the code it gave me myself, or providing it snippets of documentation from the relevant repository to guide it in its setup.
