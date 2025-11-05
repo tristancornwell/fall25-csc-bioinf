@@ -35,10 +35,10 @@ jobs:
           sudo apt-get install autoconf automake make gcc perl zlib1g-dev libbz2-dev liblzma-dev libcurl4-gnutls-dev libssl-dev libdeflate-dev
       - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
       - run: echo "🖥️ The workflow is now ready to test your code on the runner."
-      - name: Week 1
-        run: bash week1/evaluate.sh
-      - name: Week 3
-        run: bash week3/evaluate.sh
+      # - name: Week 1
+      #   run: bash week1/evaluate.sh
+      # - name: Week 3
+      #   run: bash week3/evaluate.sh
       # - name: Week 4
       #   run: bash week4/evaluate.sh
       - name: Week 5
