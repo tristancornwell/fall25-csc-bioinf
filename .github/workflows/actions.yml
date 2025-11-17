@@ -39,8 +39,7 @@ jobs:
           conda config --add channels defaults
           conda config --add channels bioconda
           conda config --add channels conda-forge
-          conda install simpleaf
-          conda install -c conda-forge -c bioconda salmon boost-cpp=1.85
+          conda install -y pandas simpleaf salmon boost-cpp=1.85
           pip install pyroe
           pip install igraph
           pip install leidenalg
