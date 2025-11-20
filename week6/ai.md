@@ -1,6 +1,8 @@
 # Overview of LLMs and prompts I used
-The main LLM I used for this deliverable was Claude Sonnet 3.5 built into VSCode's Github Copilot.
+The main LLM I used for this deliverable was ChatGPT.
 
-In the past, I've used ChatGPT pretty much exclusively, but Copilot ended up being very useful for this assignment. mainly because I was able to save time by not having to provide it with context, since it had direct access to the notebook I was working on. It was very useful for giving me a starting point for the bash scripts, since I'm not super comfortable with those. However, it got very confused trying to install and use the various tools used throughout the assignment (especially IGV, where it was seemingly endlessly hallucinating methods that didn't exist), often trying to pip install things that didn't exist, or adding unnecessary flags to setup commands. 
+Compared to other deliverables, I hardly used AI at all for this one, as I had a lot of success following along with the provided book to accomplish each step. 
 
-Overall, I found the most success by combining the starting point it gave me with a thorough reading of the documentation on my own, and then tweaking what it gave me as needed to achive simple and CI-feasible setup where possible. This pattern mostly involved feeding it the instructions for whatever step I was on, then manually fixing the code it gave me myself, or providing it snippets of documentation from the relevant repository to guide it in its setup.
+While it was a bit useful for debugging the bash cells I used, it had trouble following along with the alignment, clustering, and annotation, even when I provided links to the relevant book pages.
+
+This assignment took me roughly 5 hours to complete. Around 1 hour of that was wasted trying to use ChatGPT instead of just following along with the book, which was causing me a lot of trouble as it tried to overcomplicate everything.
