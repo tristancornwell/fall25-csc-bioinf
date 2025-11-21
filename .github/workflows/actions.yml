@@ -1,66 +1,74 @@
 name: Github CI
 on: [push]
-
 jobs:
   test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash -l {0}
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-
-      - name: Install Miniconda
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          python-version: "3.12"
-          miniconda-version: "latest"
-          activate-environment: base
-          auto-update-conda: false
-          use-mamba: false
-          update-conda: false
-          channels: conda-forge,bioconda,defaults
-
-
-      - name: Verify Python
-        run: |
-          which python
-          python --version
-
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
       - name: Install Codon
         run: |
           mkdir -p ${HOME}/.codon
-          curl -L https://github.com/exaloop/codon/releases/download/v0.19.3/codon-linux-x86_64.tar.gz \
-            | tar zxvf - --strip-components=1 -C ${HOME}/.codon
-          curl -L https://github.com/exaloop/seq/releases/download/v0.11.5/seq-linux-x86_64.tar.gz \
-            | tar zxvf - -C ${HOME}/.codon/lib/codon/plugins
-          echo "${HOME}/.codon/bin" >> $GITHUB_PATH
-
-      - name: Install Python package dependencies
+          curl -L https://github.com/exaloop/codon/releases/download/v0.19.3/codon-linux-x86_64.tar.gz | tar zxvf - --strip-components=1 -C ${HOME}/.codon
+          curl -L https://github.com/exaloop/seq/releases/download/v0.11.5/seq-linux-x86_64.tar.gz | tar zxvf - -C ${HOME}/.codon/lib/codon/plugins
+          export PATH=${PATH}:${HOME}/.codon/bin
+          echo "PATH=${PATH}" >> $GITHUB_ENV
+      - name: Check out repository code
+        uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - uses: s-weigand/setup-conda@v1
+        with:
+            activate-conda: false
+      - run: conda --version
+      - run: which python
+      - name: Set up Codon Python bridge
         run: |
           pip install find_libpython
           export CODON_PYTHON=$(find_libpython)
+          echo "Found Python at: ${CODON_PYTHON}"
           echo "CODON_PYTHON=${CODON_PYTHON}" >> $GITHUB_ENV
-
-          pip install matplotlib biotite  # week1/week3
-          pip install igv-notebook pandas jupyter nbconvert
-
-      - name: Install system packages (week5)
+          pip install matplotlib  # Dependencies for week1
+          pip install biotite # Dependencies for week3
+      - name: install dependencies for week5
         run: |
+          pip install igv-notebook pandas
+          pip install jupyter nbconvert
           sudo apt-get update
-          sudo apt-get install -y \
-            autoconf automake make gcc perl \
-            zlib1g-dev libbz2-dev liblzma-dev \
-            libcurl4-gnutls-dev libssl-dev libdeflate-dev
-          sudo apt-get install -y samtools bcftools
-
-      - name: Install week6 conda + pip deps
+          sudo apt-get install autoconf automake make gcc perl zlib1g-dev libbz2-dev liblzma-dev libcurl4-gnutls-dev libssl-dev libdeflate-dev
+          sudo apt install samtools bcftools
+      - name: install dependencies for week6
         run: |
+          conda config --add channels defaults
+          conda config --add channels bioconda
+          conda config --add channels conda-forge
           conda install -y pandas simpleaf salmon boost-cpp=1.85
-          pip install pyroe igraph leidenalg celltypist mygene
-
-      - name: Week 6 Notebook Execution
+          pip install pyroe
+          pip install igraph
+          pip install leidenalg
+          pip install celltypist
+          pip install mygene
+      - name: Activate conda
         run: |
+          source /usr/share/miniconda/etc/profile.d/conda.sh
+          conda activate base
+          which python
+          python --version
+      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
+      # - name: Week 1
+      #   run: bash week1/evaluate.sh
+      # - name: Week 3
+      #   run: bash week3/evaluate.sh
+      # - name: Week 4
+      #   run: bash week4/evaluate.sh
+      # - name: Week 5
+      #   run: jupyter nbconvert --to notebook --execute week5/week5.ipynb
+      - name: Week 6
+        run: |
+          source /usr/share/miniconda/etc/profile.d/conda.sh
+          conda activate base
+          export PATH="/usr/share/miniconda/bin:$PATH"
           jupyter nbconvert --to notebook --execute week6/week6.ipynb
