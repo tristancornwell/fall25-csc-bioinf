@@ -65,4 +65,5 @@ jobs:
         run: |
           source /usr/share/miniconda/etc/profile.d/conda.sh
           conda activate base
+          export PATH="/usr/share/miniconda/bin:$PATH"
           jupyter nbconvert --to notebook --execute week6/week6.ipynb
