@@ -15,10 +15,14 @@ jobs:
       - name: Install Miniconda
         uses: conda-incubator/setup-miniconda@v3
         with:
-          activate-environment: base
-          auto-update-conda: true
           python-version: "3.12"
+          miniconda-version: "latest"
+          activate-environment: base
+          auto-update-conda: false
+          use-mamba: false
+          update-conda: false
           channels: conda-forge,bioconda,defaults
+
 
       - name: Verify Python
         run: |
