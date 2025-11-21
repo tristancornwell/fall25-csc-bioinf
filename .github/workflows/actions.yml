@@ -50,8 +50,8 @@ jobs:
           conda config --add channels bioconda
           conda config --add channels conda-forge
           conda config --set channel_priority strict
-          conda install -y pandas simpleaf salmon boost-cpp=1.85 scanpy anndata numpy pyroe
-          pip install igraph leidenalg celltypist mygene          
+          conda install -y pandas simpleaf salmon boost-cpp=1.85 scanpy anndata numpy
+          pip install igraph leidenalg celltypist mygene pyroe
       - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
       - run: echo "🖥️ The workflow is now ready to test your code on the runner."
       # - name: Week 1
