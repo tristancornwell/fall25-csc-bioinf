@@ -66,4 +66,4 @@ jobs:
         run: |
           source /usr/share/miniconda/etc/profile.d/conda.sh
           conda activate bio
-          conda run -n bio jupyter nbconvert --to notebook --execute week6/week6.ipynb
+          jupyter nbconvert --to notebook --execute week6/week6.ipynb
