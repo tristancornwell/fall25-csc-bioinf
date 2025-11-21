@@ -48,7 +48,7 @@ jobs:
           conda config --add channels bioconda
           conda config --add channels conda-forge
           conda config --set channel_priority strict
-          conda install -y pandas simpleaf salmon boost-cpp=1.85 scanpy anndata numpy
+          conda install -y pandas=2.1.1 simpleaf salmon boost-cpp=1.85 scanpy anndata numpy=1.26
           pip install igraph leidenalg celltypist mygene pyroe jupyter nbconvert notebook
           python -m ipykernel install --user --name bio --display-name "Python (bio)"
       - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
