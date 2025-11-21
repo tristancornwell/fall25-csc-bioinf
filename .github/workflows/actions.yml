@@ -41,21 +41,15 @@ jobs:
           sudo apt install samtools bcftools
       - name: install dependencies for week6
         run: |
-          conda config --add channels defaults
-          conda config --add channels bioconda
-          conda config --add channels conda-forge
-          conda install -y pandas simpleaf salmon boost-cpp=1.85
-          pip install pyroe
-          pip install igraph
-          pip install leidenalg
-          pip install celltypist
-          pip install mygene
-      - name: Activate conda
-        run: |
           source /usr/share/miniconda/etc/profile.d/conda.sh
           conda activate base
           which python
           python --version
+          conda config --add channels defaults
+          conda config --add channels bioconda
+          conda config --add channels conda-forge
+          conda install -y pandas simpleaf salmon boost-cpp=1.85 scanpy anndata numpy pyroe
+          pip install igraph leidenalg celltypist mygene          
       - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
       - run: echo "🖥️ The workflow is now ready to test your code on the runner."
       # - name: Week 1
@@ -70,5 +64,4 @@ jobs:
         run: |
           source /usr/share/miniconda/etc/profile.d/conda.sh
           conda activate base
-          export PATH="/usr/share/miniconda/bin:$PATH"
-          jupyter nbconvert --to notebook --execute week6/week6.ipynb
+          conda run -n base jupyter nbconvert --to notebook --execute week6/week6.ipynb
