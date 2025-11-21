@@ -42,12 +42,14 @@ jobs:
       - name: install dependencies for week6
         run: |
           source /usr/share/miniconda/etc/profile.d/conda.sh
-          conda activate base
+          conda create -y -n bio python=3.12
+          conda activate bio
           which python
           python --version
           conda config --add channels defaults
           conda config --add channels bioconda
           conda config --add channels conda-forge
+          conda config --set channel_priority strict
           conda install -y pandas simpleaf salmon boost-cpp=1.85 scanpy anndata numpy pyroe
           pip install igraph leidenalg celltypist mygene          
       - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
@@ -63,5 +65,5 @@ jobs:
       - name: Week 6
         run: |
           source /usr/share/miniconda/etc/profile.d/conda.sh
-          conda activate base
+          conda activate bio
           conda run -n base jupyter nbconvert --to notebook --execute week6/week6.ipynb
